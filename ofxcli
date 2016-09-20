@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+# Copyright (c) 2016 Todd T. Fries <todd@fries.net>
+#
+# Permission to use, copy, modify, and distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+use strict;
+use warnings;
+
+use Finance::OFX;
+use Finance::OFX::Institution;
+
+use Data::Dumper;
+
+our ($org, $fid, $url);
+our ($user, $pass);
+
+eval `cat ~/.ofxcli.conf`;
+
+printf "ORG: %s\n", $org;
+printf "FID: %s\n", $fid;
+printf "URL: %s\n", $url;
+
+my $fi = Finance::OFX::Institution->new(ORG=>$org, FID=>$fid, URL=>$url);
+my $ofx = Finance::OFX->new(userID=>$user, userPass=>$pass, Institution=>$fi);
+
+my @accounts = $ofx->accounts;
+
+if (! @accounts) {
+	printf "Something went wrong: %s\n", $ofx->response;
+	exit(1);
+}
+print "Seems ok so far:\n";
+print recurse_dump($ofx->response->ofx_header());
+my $status = $ofx->response->signon_status_code( $fi );
+printf "Signon status code: %s\n", defined($status) ? $status : "<undef>";
+
+foreach my $acct (@accounts) {
+	if (!defined($acct)) {
+		next;
+	}
+	if (ref($acct) eq "") {
+		printf "Account is not a hash: %s\n", $acct;
+		next;
+	}
+	printf "%16s %8s %8.3f\n", $acct->id(), $acct->type(),
+	    $ofx->balance( $acct );
+}
+
+sub
+recurse_dump
+{
+        my ($item) = @_;
+        my $d = Data::Dumper->new([$item]);
+        $d->Purity(1);
+        $d->Terse(0);
+        $d->Deepcopy(1);
+        $d->Indent(2);
+        $d->Sortkeys(1);
+        #$d->Deparse(1);
+        return $d->Dump();
+}
