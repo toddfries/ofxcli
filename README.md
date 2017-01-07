@@ -8,9 +8,9 @@ Example output:
 
 ```
 t0|todd@i5/pf ~/git/sw/ofxcli|3981$ ./ofxcli
-ORG: ING DIRECT
-FID: 031176110
-URL: https://ofx.capitalone360.com/OFX/ofx.html
+ORG: Organization Name
+FID: 123456789
+URL: https://ofx.examplebank.com/OFX/ofx.html
 Seems ok so far:
 Signon status code: 0
     Account Available    Ledger
