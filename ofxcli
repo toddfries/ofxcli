@@ -56,10 +56,10 @@ print "Seems ok so far:\n";
 my $status = $ofx->response->signon_status_code( $fi );
 printf "Signon status code: %s\n", defined($status) ? $status : "<undef>";
 
-      # 79955919 150002.02 140002.02 CHECKING ING Medical Fund
-print "  Account Available    Ledger\n";
-print "   Number   Balance   Balance     Type Name\n";
-my $afmt = "%9d %9.2f %9.2f %8s %s\n";
+      # 1179955919 150002.02 140002.02 CHECKING ING Medical Fund
+print "    Account Available    Ledger\n";
+print "     Number   Balance   Balance     Type Name\n";
+my $afmt = "%11d %9.2f %9.2f %8s %s\n";
 
 foreach my $acct (@accounts) {
 	if (!defined($acct)) {
